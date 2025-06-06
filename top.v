@@ -1,4 +1,4 @@
-//  Educational 8-Bit Sheep-And-Goats (SAG) Verilog reference implementation
+//  Educational 8-Bit Sheep-And-Goats (SAG) Verilog Reference IP
 //
 //  Copyright (C) 2012  Claire Xenia Wolf <claire@clairexen.net>
 //
