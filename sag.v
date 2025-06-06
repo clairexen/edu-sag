@@ -36,7 +36,7 @@ module sagCtrlUnit(input [7:0] ci, output [7:0] co, output [3:0] t, input [1:0] 
 	assign x[4] = ci[4] ^ (sel[0] ? 1'b 0 : x[3]);
 	assign x[5] = ci[5] ^ x[4];
 	assign x[6] = ci[6] ^ (sel[1] ? 1'b 0 : x[5]);
-	assign x[7] = ci[7] ^ x[6];
+	assign x[7] = ci[7] ^ x[6]; // unused ;)
 
 	// butterfly control signals
 	assign t[0] = !x[0];
@@ -44,13 +44,7 @@ module sagCtrlUnit(input [7:0] ci, output [7:0] co, output [3:0] t, input [1:0] 
 	assign t[2] = !x[4];
 	assign t[3] = !x[6];
 
-	wire [7:0] co_shuffled;
-	assign co_shuffled[1:0] = t[0] ? {ci[0], ci[1]} : ci[1:0];
-	assign co_shuffled[3:2] = t[1] ? {ci[2], ci[3]} : ci[3:2];
-	assign co_shuffled[5:4] = t[2] ? {ci[4], ci[5]} : ci[5:4];
-	assign co_shuffled[7:6] = t[3] ? {ci[6], ci[7]} : ci[7:6];
-
-	sagUnshuffle unshuffle (co_shuffled, co);
+	sagDataUnit unshuffle (ci, co, t);
 endmodule
 
 module sagDataUnit(input [7:0] di, output [7:0] do, input [3:0] t);
