@@ -1,4 +1,4 @@
-## Educational 8-Bit Sheep-And-Goats (SAG) Verilog reference implementation
+## Educational 8-Bit Sheep-And-Goats (SAG) Verilog IP
 
 The purpose of this design is to demonstrade the inner workings of an efficient SAG hardware IP.
 
