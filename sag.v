@@ -58,7 +58,7 @@ module sagDataUnit(input [7:0] di, output [7:0] do, input [3:0] t);
 endmodule
 
 module sagUnshuffle(input [7:0] di, output [7:0] do);
-	wire [3:0] odds = {di[6], di[4], di[2], di[0]};
-	wire [3:0] even = {di[7], di[5], di[3], di[1]};
-	assign do = {even, odds};
+	wire [3:0] even = {di[6], di[4], di[2], di[0]};
+	wire [3:0] odds = {di[7], di[5], di[3], di[1]};
+	assign do = {odds, even};
 endmodule
