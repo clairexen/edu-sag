@@ -19,7 +19,7 @@ module sag(input [7:0] di, ci, output [7:0] do);
 	wire [3:0] t1, t2, t3;
 
 	sagCtrlUnit ctrl_1 (ci, c1, t1, 2'b 00);
-	sagCtrlUnit ctrl_2 (c1, c2, t2, 2'b 01);
+	sagCtrlUnit ctrl_2 (c1, c2, t2, 2'b 10);
 	sagCtrlUnit ctrl_3 (c2, co, t3, 2'b 11);
 
 	sagDataUnit data_1 (di, d1, t1);
@@ -31,11 +31,11 @@ module sagCtrlUnit(input [7:0] ci, output [7:0] co, output [3:0] t, input [1:0] 
 	wire x[7:0]; // prefix xor-sum over ci, partially broken depending on sel
 	assign x[0] = ci[0];
 	assign x[1] = ci[1] ^ x[0];
-	assign x[2] = ci[2] ^ (sel[1] ? 1'b 0 : x[1]);
+	assign x[2] = ci[2] ^ (sel[0] ? 1'b 0 : x[1]);
 	assign x[3] = ci[3] ^ x[2];
-	assign x[4] = ci[4] ^ (sel[0] ? 1'b 0 : x[3]);
+	assign x[4] = ci[4] ^ (sel[1] ? 1'b 0 : x[3]);
 	assign x[5] = ci[5] ^ x[4];
-	assign x[6] = ci[6] ^ (sel[1] ? 1'b 0 : x[5]);
+	assign x[6] = ci[6] ^ (sel[0] ? 1'b 0 : x[5]);
 	assign x[7] = ci[7] ^ x[6]; // unused ;)
 
 	// butterfly control signals
