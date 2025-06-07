@@ -1,6 +1,6 @@
 //  Educational 8-Bit Sheep-And-Goats (SAG) Verilog Reference IP
 //
-//  Copyright (C) 2012  Claire Xenia Wolf <claire@clairexen.net>
+//  Copyright (C) 2025  Claire Xenia Wolf <claire@clairexen.net>
 //
 //  Permission to use, copy, modify, and/or distribute this software for any
 //  purpose with or without fee is hereby granted, provided that the above
