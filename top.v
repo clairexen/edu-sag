@@ -36,25 +36,43 @@ module top;
 		end
 	endfunction
 
-	integer errcnt = 0;
-	reg [7:0] di = 0, ci = 0;
-	wire [7:0] doRef = sagRef(di, ci);
-	wire [7:0] do;
+	function [7:0] nrsagRef;
+		input [7:0] di, ci;
+		begin
+			nrsagRef = sagRef(sagRef(di, ci), sagRef(ci, ci));
+		end
+	endfunction
 
-	sag uut (di, ci, do);
+	reg [7:0] di = 0, ci = 0;
+	wire [7:0] doSag, doNrsag, doNrsag2;
+
+	sag sag_uut (di, ci, doSag);
+	nrsag nrsag_uut (di, ci, doNrsag);
+	nrsag2 nrsag2_uut (di, ci, doNrsag2);
+
+	wire [7:0] doSagRef = sagRef(di, ci);
+	wire [7:0] doNrsagRef = nrsagRef(di, ci);
+
+	wire ok = doSag === doSagRef && doNrsag === doNrsagRef && doNrsag2 === doNrsagRef;
+	integer errcnt = 0;
 
 	always begin
 		#1;
-		$display("%b %b | %b | %b %b %s", di, ci,
-				uut.co, do, doRef, do == doRef ? "OK" : "ERROR");
-		errcnt = errcnt + (do != doRef);
+		if (!di) begin
+			$display("   di       ci    |    co    |   sag     sagref  |  nrsag    nrsag2  nrsagref |");
+			$display("------------------+----------+-------------------+----------------------------+");
+		end
+		$display("%b %b | %b | %b %b | %b %b %b | %s", di, ci, nrsag_uut.co,
+				doSag, doSagRef, doNrsag, doNrsag2, doNrsagRef, ok ? "OK" : "ERROR");
+		errcnt = errcnt + !ok;
 		{ci,di} = {ci,di} + 1;
-		if (!di) $display({60{"-"}});
-		if (!di && !ci) begin
+		if (!di) begin
+			$display({79{"-"}});
 			if (errcnt) begin
-				$display("Number of failed tests: %d", errcnt);
+				$display("Number of failed tests for ci=%b: %3d", ci - 8'b1, errcnt);
 				$stop;
-			end else begin
+			end
+			if (!ci) begin
 				$display("ALL TESTS PASSED");
 				$finish;
 			end
