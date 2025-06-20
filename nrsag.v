@@ -14,12 +14,17 @@
 //  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 //  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-// this is a copy of sag.v with the neccessary changes applied to
+// This is a copy of sag.v with the neccessary changes applied to
 // perform a non-reflecting Sheep-And-Goats operation. this is the "best"
 // method of doing that in a single cycle, that I am aware of, and it still
 // has almost the same area as just instantiating the sag() core twice,
 // as demonstrated in nrsag2.v, at least for an 8-bit unit.
-module nrsag(input [7:0] di, ci, output [7:0] do); // 12 NOT, 12 NOR, 18 XOR, 72 MUX
+//
+// However, everything in the SAG unit scales with about N*log(N) wrt the number
+// of data bits, except the (upper) control unit, which is worse. So for cores
+// with a larger bit width this approach, which avoids paying for two times the
+// area of the (upper) control units, is an interesting alternative to explore.
+module nrsag(input [7:0] di, ci, output [7:0] do); // 12 NOT, 12 NOR, 22 XOR, 64 MUX
 	wire [7:0] d1, d2, d3, d4, d5, c1, c2, c3, c4, c5, co;
 	wire [3:0] b1, b2, b3, b4, b5, b6, p1, p2, p3;
 
@@ -27,16 +32,19 @@ module nrsag(input [7:0] di, ci, output [7:0] do); // 12 NOT, 12 NOR, 18 XOR, 72
 	nrsagUpperCtrlUnit ctrl_2 (c1, c2, b2, p2, 2'b 10); // 4 NOT, 6 XOR, 8 MUX
 	nrsagUpperCtrlUnit ctrl_3 (c2, c3, b3, p3, 2'b 11); // 4 NOT, 4 XOR, 8 MUX
 
-	nrsagUpperDataUnit data_bfly_1 (di, d1, b1); // 3 x 8 = 24 MUX
-	nrsagUpperDataUnit data_bfly_2 (d1, d2, b2);
-	nrsagUpperDataUnit data_bfly_3 (d2, d3, b3);
-
 	nrsagLowerCtrlUnit ctrl_4 (c3, c4, b4, p3); // 3 x 4 = 12 NOR
 	nrsagLowerCtrlUnit ctrl_5 (c4, c5, b5, p2);
 	nrsagLowerCtrlUnit ctrl_6 (c5, co, b6, p1);
 
-	nrsagLowerDataUnit data_bfly_4 (d3, d4, b4); // 3 x 8 = 24 MUX
-	nrsagLowerDataUnit data_bfly_5 (d4, d5, b5);
+	nrsagUpperDataUnit data_bfly_1 (di, d1, b1); // 3 x 8 = 24 MUX
+	nrsagUpperDataUnit data_bfly_2 (d1, d2, b2);
+	//nrsagUpperDataUnit data_bfly_3 (d2, d3, b3);
+	nrsagUpperDataUnit data_bfly_3 (d2, d3, b3 ^ b4); // + 4 XOR
+
+	// nrsagLowerDataUnit data_bfly_4 (d3, d4, b4);
+	nrsagShuffle shuffle (d3, d4);
+
+	nrsagLowerDataUnit data_bfly_5 (d4, d5, b5); // 2 x 8 = 16 MUX
 	nrsagLowerDataUnit data_bfly_6 (d5, do, b6);
 endmodule
 
