@@ -20,7 +20,7 @@ module paramNrInvSag #(
 	parameter integer FORCE_NR = -1,
 	parameter integer FORCE_INV = -1,
 	parameter integer N = 1 << LOG2N
-) (input [N-1:0] di, ci, input en_nr, input en_inv, input trace, output [N-1:0] do);
+) (input [N-1:0] di, ci, input en_nr, input en_inv, output [N-1:0] do);
 	wire ctrl_nr = FORCE_NR >= 0 ? FORCE_NR : en_nr;
 	wire ctrl_inv = FORCE_INV >= 0 ? FORCE_INV : en_inv;
 
@@ -103,10 +103,6 @@ module paramNrInvSag #(
 	reg [LOG2N*N-1:0] b_inv;
 
 	always @* begin
-		// if (trace) $display("");
-		// if (trace) $display("<%m>");
-		// if (trace) $display("%3t di=%b, ci=%b", $time, di, ci);
-
 		// Control Logic
 		c = ci;
 		for (k = 0; k < LOG2N; k = k+1) begin
@@ -142,24 +138,14 @@ module paramNrInvSag #(
 
 		// Data Path
 		d = di;
-		// if (trace) $display("");
 		for (k = 0; k < LOG2N; k = k+1) begin
-			// if (trace) $display("-- Data Path Stage %1d --", k);
 			{t, b} = {b, {N>>1{1'b0}}};
 			d = unshuffle(bfly(d, t));
-			// if (trace) $display("    b=%x (t=%x) -> d=%b", b, t, d);
 		end
-		// if (trace) $display("");
 		for (k = 0; k < LOG2N; k = k+1) begin
-			// if (trace) $display("-- Data Path Stage %1d --", LOG2N+k);
 			{t, b} = {b, {N>>1{1'b0}}};
 			d = bfly(shuffle(d), t);
-			// if (trace) $display("    b=%x (t=%x) -> d=%b", b, t, d);
 		end
-		// if (trace) $display("");
-		// if (trace) $display("%3t di=%b, ci=%b -> do=%b", $time, di, ci, d);
-		// if (trace) $display("</%m>");
-		// if (trace) $display("");
 	end
 
 	assign do = d;
@@ -200,10 +186,10 @@ module top;
 	reg [N-1:0] di, ci, next_di, next_ci;
 	wire [N-1:0] do_sag, do_isag, do_nsag, do_insag;
 	paramNrInvSag #(LOG2N)
-		uut_sag   (di,      ci, 1'b0, 1'b0, 1'b0, do_sag),
-		uut_isag  (do_sag,  ci, 1'b0, 1'b1, 1'b0, do_isag),
-		uut_nsag  (di,      ci, 1'b1, 1'b0, 1'b0, do_nsag),
-		uut_insag (do_nsag, ci, 1'b1, 1'b1, 1'b0, do_insag);
+		uut_sag   (di,      ci, 1'b0, 1'b0, do_sag),
+		uut_isag  (do_sag,  ci, 1'b0, 1'b1, do_isag),
+		uut_nsag  (di,      ci, 1'b1, 1'b0, do_nsag),
+		uut_insag (do_nsag, ci, 1'b1, 1'b1, do_insag);
 	
 	wire [N-1:0] ref_sag = sagRef(di, ci);
 	wire [N-1:0] ref_nsag = nsagRef(di, ci);
