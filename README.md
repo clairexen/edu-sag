@@ -58,12 +58,13 @@ g o a t s C A T
 
 The mapping of characters can be illustrated directly with a top-to-bottom
 Mermaid diagram.  Each input letter flows to its final position so you can
-trace the permutation:
+trace the permutation.  Dashed edges keep the boxes in their original order:
 
 ```mermaid
 flowchart TB
+    %% Keep input letters in order using invisible edges
     subgraph IN
-        direction LR
+        direction TB
         I1[s]
         I2[t]
         I3[C]
@@ -72,9 +73,17 @@ flowchart TB
         I6[T]
         I7[o]
         I8[g]
+        I1 -.-> I2
+        I2 -.-> I3
+        I3 -.-> I4
+        I4 -.-> I5
+        I5 -.-> I6
+        I6 -.-> I7
+        I7 -.-> I8
     end
+    %% Keep outputs pinned as well
     subgraph OUT
-        direction LR
+        direction TB
         O1[g]
         O2[o]
         O3[a]
@@ -83,6 +92,13 @@ flowchart TB
         O6[C]
         O7[A]
         O8[T]
+        O1 -.-> O2
+        O2 -.-> O3
+        O3 -.-> O4
+        O4 -.-> O5
+        O5 -.-> O6
+        O6 -.-> O7
+        O7 -.-> O8
     end
     I1 --> O5
     I2 --> O4
