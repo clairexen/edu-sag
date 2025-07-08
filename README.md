@@ -47,42 +47,51 @@ The output in this case is `do = 4'b1100`.
 
 ### Letter example
 
-To see SAG in a more familiar setting, consider the string `a X Y s e Z r o`
-where the capital letters are sheep. After processing, the goats are moved to
-the front in reverse order while the sheep remain at the end:
+To see SAG in a more familiar setting, consider the string
+`s t C A a T o g` where the capital letters are the sheep.  After processing,
+all of the goats are collected first (in reverse order) followed by the sheep
+in their original order:
 
 ```
-o r e s a X Y Z
+g o a t s C A T
 ```
 
-The top-to-bottom flow looks like this:
+The mapping of characters can be illustrated directly with a top-to-bottom
+Mermaid diagram.  Each input letter flows to its final position so you can
+trace the permutation:
 
 ```mermaid
 flowchart TB
-    subgraph input
-        direction TB
-        L1[a]
-        L2[X]
-        L3[Y]
-        L4[s]
-        L5[e]
-        L6[Z]
-        L7[r]
-        L8[o]
+    subgraph IN
+        direction LR
+        I1[s]
+        I2[t]
+        I3[C]
+        I4[A]
+        I5[a]
+        I6[T]
+        I7[o]
+        I8[g]
     end
-    input --> SAG{{SAG}}
-    SAG --> output
-    subgraph output
-        direction TB
-        O1[o]
-        O2[r]
-        O3[e]
-        O4[s]
-        O5[a]
-        O6[X]
-        O7[Y]
-        O8[Z]
+    subgraph OUT
+        direction LR
+        O1[g]
+        O2[o]
+        O3[a]
+        O4[t]
+        O5[s]
+        O6[C]
+        O7[A]
+        O8[T]
     end
+    I1 --> O5
+    I2 --> O4
+    I3 --> O6
+    I4 --> O7
+    I5 --> O3
+    I6 --> O8
+    I7 --> O2
+    I8 --> O1
 ```
 
 ### Hardware Pipeline
