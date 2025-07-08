@@ -56,58 +56,47 @@ in their original order:
 g o a t s C A T
 ```
 
-The mapping of characters can be illustrated directly with a top-to-bottom
-Mermaid diagram.  Each input letter flows to its final position so you can
-trace the permutation.  Dashed edges keep the boxes in their original order:
+The mapping of characters can also be shown with the beta layout plugin for
+Mermaid.  Eight input boxes remain aligned above eight output boxes so the
+arrows clearly illustrate how each letter moves:
 
 ```mermaid
-flowchart TB
-    %% Keep input letters in order using invisible edges
-    subgraph IN
-        direction TB
-        I1[s]
-        I2[t]
-        I3[C]
-        I4[A]
-        I5[a]
-        I6[T]
-        I7[o]
-        I8[g]
-        I1 -.-> I2
-        I2 -.-> I3
-        I3 -.-> I4
-        I4 -.-> I5
-        I5 -.-> I6
-        I6 -.-> I7
-        I7 -.-> I8
-    end
-    %% Keep outputs pinned as well
-    subgraph OUT
-        direction TB
-        O1[g]
-        O2[o]
-        O3[a]
-        O4[t]
-        O5[s]
-        O6[C]
-        O7[A]
-        O8[T]
-        O1 -.-> O2
-        O2 -.-> O3
-        O3 -.-> O4
-        O4 -.-> O5
-        O5 -.-> O6
-        O6 -.-> O7
-        O7 -.-> O8
-    end
-    I1 --> O5
-    I2 --> O4
-    I3 --> O6
-    I4 --> O7
-    I5 --> O3
-    I6 --> O8
-    I7 --> O2
-    I8 --> O1
+block-beta
+  columns 8
+  block:group1:8
+    columns 8
+    i7["s"]
+    i6["t"]
+    i5["C"]
+    i4["A"]
+    i3["a"]
+    i2["T"]
+    i1["o"]
+    i0["g"]
+  end
+
+  classDef sheep fill:#a66
+  class i0 sheep
+
+  block:group2:8
+    columns 8
+    o7["g"]
+    o6["o"]
+    o5["a"]
+    o4["t"]
+    o3["s"]
+    o2["C"]
+    o1["A"]
+    o0["T"]
+  end
+  i7-->o3
+  i6-->o4
+  i5-->o2
+  i4-->o1
+  i3-->o5
+  i2-->o0
+  i1-->o6
+  i0-->o7
 ```
 
 ### Hardware Pipeline
