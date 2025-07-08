@@ -45,6 +45,46 @@ flowchart LR
 
 The output in this case is `do = 4'b1100`.
 
+### Letter example
+
+To see SAG in a more familiar setting, consider the string `a X Y s e Z r o`
+where the capital letters are sheep. After processing, the goats are moved to
+the front in reverse order while the sheep remain at the end:
+
+```
+o r e s a X Y Z
+```
+
+The top-to-bottom flow looks like this:
+
+```mermaid
+flowchart TB
+    subgraph input
+        direction TB
+        L1[a]
+        L2[X]
+        L3[Y]
+        L4[s]
+        L5[e]
+        L6[Z]
+        L7[r]
+        L8[o]
+    end
+    input --> SAG{{SAG}}
+    SAG --> output
+    subgraph output
+        direction TB
+        O1[o]
+        O2[r]
+        O3[e]
+        O4[s]
+        O5[a]
+        O6[X]
+        O7[Y]
+        O8[Z]
+    end
+```
+
 ### Hardware Pipeline
 
 The Verilog implementation is organized as three identical stages. Each stage
