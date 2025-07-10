@@ -67,142 +67,160 @@ class sag:
 def shuffle(a):
     return [a[0], a[4], a[1], a[5], a[2], a[6], a[3], a[7]]
     
-subject="stCAaTog"
-d = sag(subject)
 
-def jrs(a):
-    return " ".join(reversed(shuffle(a)))
+import sys
+args = sys.argv[1:]
 
-def jru(a):
-    return " ".join(reversed(a))
+summary_mode = False
 
-def st(s, n):
-    def tag(i):
-        nonlocal s
-        s = s[:i] + "|" + s[i+1:]
-    if n & 2: tag(3)
-    if n & 1: tag(7)
-    if n & 2: tag(11)
-    return s
+if args and args[0] == "-s":
+    summary_mode = True
+    args = args[1:]
 
-print(f"%% di=[{st(jru(d.di), 0)}] ci=[{st(jru(['1' if x else '0' for x in d.ci]), 0)}]")
-print(f"%%    [{st(jrs(d.d1), 0)}]    [{st(jrs(['1' if x else '0' for x in d.c1]), 0)}]")
-print(f"%% d1=[{st(jru(d.d1), 1)}] c1=[{st(jru(['1' if x else '0' for x in d.c1]), 1)}]")
-print(f"%%    [{st(jrs(d.d2), 1)}]    [{st(jrs(['1' if x else '0' for x in d.c2]), 1)}]")
-print(f"%% d2=[{st(jru(d.d2), 3)}] c2=[{st(jru(['1' if x else '0' for x in d.c2]), 3)}]")
-print(f"%%    [{st(jrs(d.do), 3)}]    [{st(jrs(['1' if x else '0' for x in d.co]), 3)}]")
-print(f"%% do=[{st(jru(d.do), 0)}] co=[{st(jru(['1' if x else '0' for x in d.co]), 0)}]")
+if not args:
+    args = ["stCAaTog", "SgHoEdEP"]
 
-A = d.di
-B = shuffle(d.d1)
-C = d.d1
-D = shuffle(d.d2)
-E = d.d2
-F = shuffle(d.do)
-G = d.do
+print()
+for arg in args:
+    d = sag(arg)
 
-print(f"block-beta")
-print(f"  columns 9")
-print(f"  classDef sheep fill:#faa")
-print(f"  classDef label fill:#fff,stroke-width:0px")
-print(f"  classDef action fill:#ffa")
-print(f"  classDef grp fill:#888")
+    def jrs(a):
+        return " ".join(reversed(shuffle(a)))
 
-def mm_block(letter, chars, sz = None):
-    if sz is None:
-        print(f"  block:{letter}:8")
-        print(f"    columns 8")
-        for i in range(7, -1, -1):
-            print(f"    {letter}{i}[\"{chars[i]}\"]")
-        print(f"  end")
-    else:
-        for i in range(7, -1, -sz):
-            print(f"  block:{letter}_{i}:{sz}")
-            print(f"    columns {sz}")
-            for j in range(i, i-sz, -1):
-                print(f"    {letter}{j}[\"{chars[j]}\"]")
+    def jru(a):
+        return " ".join(reversed(a))
+
+    def st(s, n):
+        def tag(i):
+            nonlocal s
+            s = s[:i] + "|" + s[i+1:]
+        if n & 2: tag(3)
+        if n & 1: tag(7)
+        if n & 2: tag(11)
+        return s
+
+    print(f"%% di=[{st(jru(d.di), 0)}] ci=[{st(jru(['1' if x else '0' for x in d.ci]), 0)}]")
+    print(f"%%    [{st(jrs(d.d1), 0)}]    [{st(jrs(['1' if x else '0' for x in d.c1]), 0)}]")
+    print(f"%% d1=[{st(jru(d.d1), 1)}] c1=[{st(jru(['1' if x else '0' for x in d.c1]), 1)}]")
+    print(f"%%    [{st(jrs(d.d2), 0)}]    [{st(jrs(['1' if x else '0' for x in d.c2]), 0)}]")
+    print(f"%% d2=[{st(jru(d.d2), 3)}] c2=[{st(jru(['1' if x else '0' for x in d.c2]), 3)}]")
+    print(f"%%    [{st(jrs(d.do), 0)}]    [{st(jrs(['1' if x else '0' for x in d.co]), 0)}]")
+    print(f"%% do=[{st(jru(d.do), 0)}] co=[{st(jru(['1' if x else '0' for x in d.co]), 0)}]")
+    print()
+
+    if summary_mode:
+        continue
+
+    A = d.di
+    B = shuffle(d.d1)
+    C = d.d1
+    D = shuffle(d.d2)
+    E = d.d2
+    F = shuffle(d.do)
+    G = d.do
+
+    print(f"block-beta")
+    print(f"  columns 9")
+    print(f"  classDef sheep fill:#faa")
+    print(f"  classDef label fill:#fff,stroke-width:0px")
+    print(f"  classDef action fill:#ffa")
+    print(f"  classDef grp fill:#888")
+
+    def mm_block(letter, chars, sz = None):
+        if sz is None:
+            print(f"  block:{letter}:8")
+            print(f"    columns 8")
+            for i in range(7, -1, -1):
+                print(f"    {letter}{i}[\"{chars[i]}\"]")
             print(f"  end")
-            print(f"  class {letter}_{i} grp")
+        else:
+            for i in range(7, -1, -sz):
+                print(f"  block:{letter}_{i}:{sz}")
+                print(f"    columns {sz}")
+                for j in range(i, i-sz, -1):
+                    print(f"    {letter}{j}[\"{chars[j]}\"]")
+                print(f"  end")
+                print(f"  class {letter}_{i} grp")
 
-mm_block("A", A, 8)
-print(" L1[\"di\"] space:8 S1<[\"1st Stage\"]>(left)")
-mm_block("B", B)
-print("space:9 U1<[\"Unshuffle\"]>(left)")
-mm_block("C", C, 4)
-print("space:9 S2<[\"2nd Stage\"]>(left)")
-mm_block("D", D)
-print("space:9 U2<[\"Unshuffle\"]>(left)")
-mm_block("E", E, 2)
-print("space:9 S3<[\"3rd Stage\"]>(left)")
-mm_block("F", F)
-print("space:9 U3<[\"Unshuffle\"]>(left)")
-mm_block("G", G, 1)
-print(" L2[\"do\"]")
+    mm_block("A", A, 8)
+    print(" L1[\"di\"] space:8 S1<[\"1st Stage\"]>(left)")
+    mm_block("B", B)
+    print("space:9 U1<[\"Unshuffle\"]>(left)")
+    mm_block("C", C, 4)
+    print("space:9 S2<[\"2nd Stage\"]>(left)")
+    mm_block("D", D)
+    print("space:9 U2<[\"Unshuffle\"]>(left)")
+    mm_block("E", E, 2)
+    print("space:9 S3<[\"3rd Stage\"]>(left)")
+    mm_block("F", F)
+    print("space:9 U3<[\"Unshuffle\"]>(left)")
+    mm_block("G", G, 1)
+    print(" L2[\"do\"]")
 
-print(f"class L1 label")
-print(f"class L2 label")
+    print(f"class L1 label")
+    print(f"class L2 label")
 
-for i in range(1, 4):
-    print(f"class S{i} action")
-    print(f"class U{i} action")
+    for i in range(1, 4):
+        print(f"class S{i} action")
+        print(f"class U{i} action")
 
-def mm_sheep(letter, chars):
-    for i in range (8):
-        if chars[i].isupper():
-            print(f"class {letter}{i} sheep")
+    def mm_sheep(letter, chars):
+        for i in range (8):
+            if chars[i].isupper():
+                print(f"class {letter}{i} sheep")
 
-mm_sheep("A", A)
-mm_sheep("B", B)
-mm_sheep("C", C)
-mm_sheep("D", D)
-mm_sheep("E", E)
-mm_sheep("F", F)
-mm_sheep("G", G)
+    mm_sheep("A", A)
+    mm_sheep("B", B)
+    mm_sheep("C", C)
+    mm_sheep("D", D)
+    mm_sheep("E", E)
+    mm_sheep("F", F)
+    mm_sheep("G", G)
 
-def mm_swap(a, b, c):
-    if c[0]:
-        print(f"{a}0 --> {b}1")
-        print(f"{a}1 --> {b}0")
-    else:
+    def mm_swap(a, b, c):
+        if c[0]:
+            print(f"{a}0 --> {b}1")
+            print(f"{a}1 --> {b}0")
+        else:
+            print(f"{a}0 --> {b}0")
+            print(f"{a}1 --> {b}1")
+
+        if c[1]:
+            print(f"{a}2 --> {b}3")
+            print(f"{a}3 --> {b}2")
+        else:
+            print(f"{a}2 --> {b}2")
+            print(f"{a}3 --> {b}3")
+
+        if c[2]:
+            print(f"{a}4 --> {b}5")
+            print(f"{a}5 --> {b}4")
+        else:
+            print(f"{a}4 --> {b}4")
+            print(f"{a}5 --> {b}5")
+
+        if c[3]:
+            print(f"{a}6 --> {b}7")
+            print(f"{a}7 --> {b}6")
+        else:
+            print(f"{a}6 --> {b}6")
+            print(f"{a}7 --> {b}7")
+
+    mm_swap("A", "B", d.b1)
+    mm_swap("C", "D", d.b2)
+    mm_swap("E", "F", d.b3)
+
+    def mm_shuffle(a, b):
         print(f"{a}0 --> {b}0")
-        print(f"{a}1 --> {b}1")
-
-    if c[1]:
-        print(f"{a}2 --> {b}3")
-        print(f"{a}3 --> {b}2")
-    else:
-        print(f"{a}2 --> {b}2")
-        print(f"{a}3 --> {b}3")
-
-    if c[2]:
-        print(f"{a}4 --> {b}5")
-        print(f"{a}5 --> {b}4")
-    else:
-        print(f"{a}4 --> {b}4")
-        print(f"{a}5 --> {b}5")
-
-    if c[3]:
-        print(f"{a}6 --> {b}7")
-        print(f"{a}7 --> {b}6")
-    else:
-        print(f"{a}6 --> {b}6")
+        print(f"{a}2 --> {b}1")
+        print(f"{a}4 --> {b}2")
+        print(f"{a}6 --> {b}3")
+        print(f"{a}1 --> {b}4")
+        print(f"{a}3 --> {b}5")
+        print(f"{a}5 --> {b}6")
         print(f"{a}7 --> {b}7")
 
-mm_swap("A", "B", d.b1)
-mm_swap("C", "D", d.b2)
-mm_swap("E", "F", d.b3)
-
-def mm_shuffle(a, b):
-    print(f"{a}0 --> {b}0")
-    print(f"{a}2 --> {b}1")
-    print(f"{a}4 --> {b}2")
-    print(f"{a}6 --> {b}3")
-    print(f"{a}1 --> {b}4")
-    print(f"{a}3 --> {b}5")
-    print(f"{a}5 --> {b}6")
-    print(f"{a}7 --> {b}7")
-
-mm_shuffle("B", "C")
-mm_shuffle("D", "E")
-mm_shuffle("F", "G")
+    mm_shuffle("B", "C")
+    mm_shuffle("D", "E")
+    mm_shuffle("F", "G")
 
