@@ -85,13 +85,13 @@ def st(s, n):
     if n & 2: tag(11)
     return s
 
-# print(f"di=[{st(jru(d.di), 0)}] ci=[{st(jru(['1' if x else '0' for x in d.ci]), 0)}]")
-# print(f"   [{st(jrs(d.d1), 0)}]    [{st(jrs(['1' if x else '0' for x in d.c1]), 0)}]")
-# print(f"d1=[{st(jru(d.d1), 1)}] c1=[{st(jru(['1' if x else '0' for x in d.c1]), 1)}]")
-# print(f"   [{st(jrs(d.d2), 1)}]    [{st(jrs(['1' if x else '0' for x in d.c2]), 1)}]")
-# print(f"d2=[{st(jru(d.d2), 3)}] c2=[{st(jru(['1' if x else '0' for x in d.c2]), 3)}]")
-# print(f"   [{st(jrs(d.do), 3)}]    [{st(jrs(['1' if x else '0' for x in d.co]), 3)}]")
-# print(f"do=[{st(jru(d.do), 0)}] co=[{st(jru(['1' if x else '0' for x in d.co]), 0)}]")
+print(f"%% di=[{st(jru(d.di), 0)}] ci=[{st(jru(['1' if x else '0' for x in d.ci]), 0)}]")
+print(f"%%    [{st(jrs(d.d1), 0)}]    [{st(jrs(['1' if x else '0' for x in d.c1]), 0)}]")
+print(f"%% d1=[{st(jru(d.d1), 1)}] c1=[{st(jru(['1' if x else '0' for x in d.c1]), 1)}]")
+print(f"%%    [{st(jrs(d.d2), 1)}]    [{st(jrs(['1' if x else '0' for x in d.c2]), 1)}]")
+print(f"%% d2=[{st(jru(d.d2), 3)}] c2=[{st(jru(['1' if x else '0' for x in d.c2]), 3)}]")
+print(f"%%    [{st(jrs(d.do), 3)}]    [{st(jrs(['1' if x else '0' for x in d.co]), 3)}]")
+print(f"%% do=[{st(jru(d.do), 0)}] co=[{st(jru(['1' if x else '0' for x in d.co]), 0)}]")
 
 A = d.di
 B = shuffle(d.d1)
@@ -105,31 +105,46 @@ print(f"block-beta")
 print(f"  columns 9")
 print(f"  classDef sheep fill:#faa")
 print(f"  classDef label fill:#fff,stroke-width:0px")
+print(f"  classDef action fill:#ffa")
+print(f"  classDef grp fill:#888")
 
-def mm_block(letter, chars):
-    print(f"  block:{letter}:8")
-    print(f"    columns 8")
-    for i in range(7, -1, -1):
-        print(f"    {letter}{i}[\"{chars[i]}\"]")
-    print(f"  end")
+def mm_block(letter, chars, sz = None):
+    if sz is None:
+        print(f"  block:{letter}:8")
+        print(f"    columns 8")
+        for i in range(7, -1, -1):
+            print(f"    {letter}{i}[\"{chars[i]}\"]")
+        print(f"  end")
+    else:
+        for i in range(7, -1, -sz):
+            print(f"  block:{letter}_{i}:{sz}")
+            print(f"    columns {sz}")
+            for j in range(i, i-sz, -1):
+                print(f"    {letter}{j}[\"{chars[j]}\"]")
+            print(f"  end")
+            print(f"  class {letter}_{i} grp")
 
-mm_block("A", A)
-print("space:9 S1[\"1st Stage\"]")
+mm_block("A", A, 8)
+print(" L1[\"di\"] space:8 S1<[\"1st Stage\"]>(left)")
 mm_block("B", B)
-print("space:9 U1[\"Unshuffle\"]")
-mm_block("C", C)
-print("space:9 S2[\"2nd Stage\"]")
+print("space:9 U1<[\"Unshuffle\"]>(left)")
+mm_block("C", C, 4)
+print("space:9 S2<[\"2nd Stage\"]>(left)")
 mm_block("D", D)
-print("space:9 U2[\"Unshuffle\"]")
-mm_block("E", E)
-print("space:9 S3[\"3rd Stage\"]")
+print("space:9 U2<[\"Unshuffle\"]>(left)")
+mm_block("E", E, 2)
+print("space:9 S3<[\"3rd Stage\"]>(left)")
 mm_block("F", F)
-print("space:9 U3[\"Unshuffle\"]")
-mm_block("G", G)
+print("space:9 U3<[\"Unshuffle\"]>(left)")
+mm_block("G", G, 1)
+print(" L2[\"do\"]")
+
+print(f"class L1 label")
+print(f"class L2 label")
 
 for i in range(1, 4):
-    print(f"class S{i} label")
-    print(f"class U{i} label")
+    print(f"class S{i} action")
+    print(f"class U{i} action")
 
 def mm_sheep(letter, chars):
     for i in range (8):
