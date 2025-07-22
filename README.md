@@ -19,10 +19,133 @@ the higher bits of the result in reversed order.
 This creates a word where `di` is filtered and reorganized based on `ci`, with
 a forward-ordered prefix of selected bits and a mirrored suffix of the rest.
 
+In the following examples, upper case letters are the sheep (`ci[i] = 1`) and
+lower case letters are the goats (`ci[i] = 0`).
+
+```mermaid
+%% di=[s t C A a T o g] ci=[0 0 1 1 0 1 0 0]
+%% do=[g o a t s C A T] co=[0 0 0 0 0 1 1 1]
+
+block-beta
+  columns 9
+  classDef sheep fill:#faa
+  classDef label fill:#fff,stroke-width:0px
+  classDef action fill:#ffa
+  classDef grp fill:#888
+  block:A:8
+    columns 8
+    A7["s"]
+    A6["t"]
+    A5["C"]
+    A4["A"]
+    A3["a"]
+    A2["T"]
+    A1["o"]
+    A0["g"]
+  end
+  L1["di"]
+  space:9
+  block:G:8
+    columns 8
+    G7["g"]
+    G6["o"]
+    G5["a"]
+    G4["t"]
+    G3["s"]
+    G2["C"]
+    G1["A"]
+    G0["T"]
+  end
+  L2["do"]
+class L1 label
+class L2 label
+class S1 action
+class U1 action
+class S2 action
+class U2 action
+class S3 action
+class U3 action
+class A2 sheep
+class A4 sheep
+class A5 sheep
+class G0 sheep
+class G1 sheep
+class G2 sheep
+A7 --> G3
+A6 --> G4
+A5 --> G2
+A4 --> G1
+A3 --> G5
+A2 --> G0
+A1 --> G6
+A0 --> G7
+```
+```mermaid
+%% di=[S g H o E d E P] ci=[1 0 1 0 1 0 1 1]
+%% do=[d o g S H E E P] co=[0 0 0 1 1 1 1 1]
+
+block-beta
+  columns 9
+  classDef sheep fill:#faa
+  classDef label fill:#fff,stroke-width:0px
+  classDef action fill:#ffa
+  classDef grp fill:#888
+  block:A:8
+    columns 8
+    A7["S"]
+    A6["g"]
+    A5["H"]
+    A4["o"]
+    A3["E"]
+    A2["d"]
+    A1["E"]
+    A0["P"]
+  end
+  L1["di"]
+  space:9
+  block:G:8
+    columns 8
+    G7["d"]
+    G6["o"]
+    G5["g"]
+    G4["S"]
+    G3["H"]
+    G2["E"]
+    G1["E"]
+    G0["P"]
+  end
+  L2["do"]
+class L1 label
+class L2 label
+class S1 action
+class U1 action
+class S2 action
+class U2 action
+class S3 action
+class U3 action
+class A0 sheep
+class A1 sheep
+class A3 sheep
+class A5 sheep
+class A7 sheep
+class G0 sheep
+class G1 sheep
+class G2 sheep
+class G3 sheep
+class G4 sheep
+A7 --> G4
+A6 --> G5
+A5 --> G3
+A4 --> G6
+A3 --> G2
+A2 --> G7
+A1 --> G1
+A0 --> G0
+```
+
 ----
 
-In the following examples, upper case letter are the sheep (`ci[i] = 1`) and
-lower case letter are the goats (`ci[i] = 0`).
+And here is a picture of the complete data-flow through the SAG IP for the two examples shown above: 
 
 ```mermaid
 %% di=[s t C A a T o g] ci=[0 0 1 1 0 1 0 0]
