@@ -72,9 +72,13 @@ import sys
 args = sys.argv[1:]
 
 summary_mode = False
+verbose_mode = False
 
-if args and args[0] == "-s":
-    summary_mode = True
+if args and args[0] in ("-s", "-v"):
+    if args[0] == "-s":
+        summary_mode = True
+    if args[0] == "-v":
+        verbose_mode = True
     args = args[1:]
 
 if not args:
@@ -99,12 +103,14 @@ for arg in args:
         if n & 2: tag(11)
         return s
 
+    print("```mermaid")
     print(f"%% di=[{st(jru(d.di), 0)}] ci=[{st(jru(['1' if x else '0' for x in d.ci]), 0)}]")
-    print(f"%%    [{st(jrs(d.d1), 0)}]    [{st(jrs(['1' if x else '0' for x in d.c1]), 0)}]")
-    print(f"%% d1=[{st(jru(d.d1), 1)}] c1=[{st(jru(['1' if x else '0' for x in d.c1]), 1)}]")
-    print(f"%%    [{st(jrs(d.d2), 0)}]    [{st(jrs(['1' if x else '0' for x in d.c2]), 0)}]")
-    print(f"%% d2=[{st(jru(d.d2), 3)}] c2=[{st(jru(['1' if x else '0' for x in d.c2]), 3)}]")
-    print(f"%%    [{st(jrs(d.do), 0)}]    [{st(jrs(['1' if x else '0' for x in d.co]), 0)}]")
+    if verbose_mode:
+        print(f"%%    [{st(jrs(d.d1), 0)}]    [{st(jrs(['1' if x else '0' for x in d.c1]), 0)}]")
+        print(f"%% d1=[{st(jru(d.d1), 1)}] c1=[{st(jru(['1' if x else '0' for x in d.c1]), 1)}]")
+        print(f"%%    [{st(jrs(d.d2), 0)}]    [{st(jrs(['1' if x else '0' for x in d.c2]), 0)}]")
+        print(f"%% d2=[{st(jru(d.d2), 3)}] c2=[{st(jru(['1' if x else '0' for x in d.c2]), 3)}]")
+        print(f"%%    [{st(jrs(d.do), 0)}]    [{st(jrs(['1' if x else '0' for x in d.co]), 0)}]")
     print(f"%% do=[{st(jru(d.do), 0)}] co=[{st(jru(['1' if x else '0' for x in d.co]), 0)}]")
     print()
 
@@ -142,20 +148,27 @@ for arg in args:
                 print(f"  end")
                 print(f"  class {letter}_{i} grp")
 
-    mm_block("A", A, 8)
-    print(" L1[\"di\"] space:8 S1<[\"1st Stage\"]>(left)")
-    mm_block("B", B)
-    print("space:9 U1<[\"Unshuffle\"]>(left)")
-    mm_block("C", C, 4)
-    print("space:9 S2<[\"2nd Stage\"]>(left)")
-    mm_block("D", D)
-    print("space:9 U2<[\"Unshuffle\"]>(left)")
-    mm_block("E", E, 2)
-    print("space:9 S3<[\"3rd Stage\"]>(left)")
-    mm_block("F", F)
-    print("space:9 U3<[\"Unshuffle\"]>(left)")
-    mm_block("G", G, 1)
-    print(" L2[\"do\"]")
+    if verbose_mode:
+        mm_block("A", A, 8)
+        print("  L1[\"di\"]")
+        print("  space:8 S1<[\"1st Stage\"]>(left)")
+        mm_block("B", B)
+        print("  space:9 U1<[\"Unshuffle\"]>(left)")
+        mm_block("C", C, 4)
+        print("  space:9 S2<[\"2nd Stage\"]>(left)")
+        mm_block("D", D)
+        print("  space:9 U2<[\"Unshuffle\"]>(left)")
+        mm_block("E", E, 2)
+        print("  space:9 S3<[\"3rd Stage\"]>(left)")
+        mm_block("F", F)
+        print("  space:9 U3<[\"Unshuffle\"]>(left)")
+        mm_block("G", G, 1)
+    else:
+        mm_block("A", A)
+        print("  L1[\"di\"]")
+        print("  space:9")
+        mm_block("G", G)
+    print("  L2[\"do\"]")
 
     print(f"class L1 label")
     print(f"class L2 label")
@@ -170,57 +183,67 @@ for arg in args:
                 print(f"class {letter}{i} sheep")
 
     mm_sheep("A", A)
-    mm_sheep("B", B)
-    mm_sheep("C", C)
-    mm_sheep("D", D)
-    mm_sheep("E", E)
-    mm_sheep("F", F)
+    if verbose_mode:
+        mm_sheep("B", B)
+        mm_sheep("C", C)
+        mm_sheep("D", D)
+        mm_sheep("E", E)
+        mm_sheep("F", F)
     mm_sheep("G", G)
 
-    def mm_swap(a, b, c):
-        if c[0]:
-            print(f"{a}0 --> {b}1")
-            print(f"{a}1 --> {b}0")
-        else:
+    if verbose_mode:
+        def mm_swap(a, b, c):
+            if c[0]:
+                print(f"{a}0 --> {b}1")
+                print(f"{a}1 --> {b}0")
+            else:
+                print(f"{a}0 --> {b}0")
+                print(f"{a}1 --> {b}1")
+
+            if c[1]:
+                print(f"{a}2 --> {b}3")
+                print(f"{a}3 --> {b}2")
+            else:
+                print(f"{a}2 --> {b}2")
+                print(f"{a}3 --> {b}3")
+
+            if c[2]:
+                print(f"{a}4 --> {b}5")
+                print(f"{a}5 --> {b}4")
+            else:
+                print(f"{a}4 --> {b}4")
+                print(f"{a}5 --> {b}5")
+
+            if c[3]:
+                print(f"{a}6 --> {b}7")
+                print(f"{a}7 --> {b}6")
+            else:
+                print(f"{a}6 --> {b}6")
+                print(f"{a}7 --> {b}7")
+
+        mm_swap("A", "B", d.b1)
+        mm_swap("C", "D", d.b2)
+        mm_swap("E", "F", d.b3)
+
+        def mm_shuffle(a, b):
             print(f"{a}0 --> {b}0")
-            print(f"{a}1 --> {b}1")
-
-        if c[1]:
-            print(f"{a}2 --> {b}3")
-            print(f"{a}3 --> {b}2")
-        else:
-            print(f"{a}2 --> {b}2")
-            print(f"{a}3 --> {b}3")
-
-        if c[2]:
-            print(f"{a}4 --> {b}5")
-            print(f"{a}5 --> {b}4")
-        else:
-            print(f"{a}4 --> {b}4")
-            print(f"{a}5 --> {b}5")
-
-        if c[3]:
-            print(f"{a}6 --> {b}7")
-            print(f"{a}7 --> {b}6")
-        else:
-            print(f"{a}6 --> {b}6")
+            print(f"{a}2 --> {b}1")
+            print(f"{a}4 --> {b}2")
+            print(f"{a}6 --> {b}3")
+            print(f"{a}1 --> {b}4")
+            print(f"{a}3 --> {b}5")
+            print(f"{a}5 --> {b}6")
             print(f"{a}7 --> {b}7")
 
-    mm_swap("A", "B", d.b1)
-    mm_swap("C", "D", d.b2)
-    mm_swap("E", "F", d.b3)
+        mm_shuffle("B", "C")
+        mm_shuffle("D", "E")
+        mm_shuffle("F", "G")
 
-    def mm_shuffle(a, b):
-        print(f"{a}0 --> {b}0")
-        print(f"{a}2 --> {b}1")
-        print(f"{a}4 --> {b}2")
-        print(f"{a}6 --> {b}3")
-        print(f"{a}1 --> {b}4")
-        print(f"{a}3 --> {b}5")
-        print(f"{a}5 --> {b}6")
-        print(f"{a}7 --> {b}7")
+    else: # not verbose_mode
+        abc = "abcdefgh"
+        arg2 = "".join(abc[i].upper() if arg[i].isupper() else abc[i] for i in range(8))
+        do2 = "".join(reversed(sag(arg2).do))
+        for i in range(8):
+            print(f"A{7-i} --> G{7-do2.find(arg2[i])}")
 
-    mm_shuffle("B", "C")
-    mm_shuffle("D", "E")
-    mm_shuffle("F", "G")
-
+    print("```")
