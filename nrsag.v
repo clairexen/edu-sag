@@ -23,9 +23,9 @@
 // However, everything in the SAG unit scales with about N*log(N) wrt the number
 // of data bits, except the (upper) control unit, which is worse. So for cores
 // with a larger bit width this approach, which avoids paying for two times the
-// area of the (upper) control units, is an interesting alternative to explore.
-// Especially if your design already contains the 2nd mirrored butterfly stage
-// for implementing inverse-sag.
+// area of the (upper) control units, it's an interesting alternative to explore.
+// Especially if your design already contains both butterflies for implementing
+// sag as well as inverse-sag.
 module nrsag(input [7:0] di, ci, output [7:0] do); // 12 NOT, 12 NOR, 22 XOR, 64 MUX
 	wire [7:0] d1, d2, d3, d4, d5, c1, c2, c3, c4, c5, co;
 	wire [3:0] b1, b2, b3, b4, b5, b6, p1, p2, p3;
