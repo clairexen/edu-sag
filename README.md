@@ -184,7 +184,9 @@ After the unshuffle we treat the even and odd halfs as completely seperate (uppe
 
 ----
 
-And here is a picture of the complete data-flow through the SAG IP for the two examples shown above: 
+And here is a picture of the complete data-flow through the SAG IP for the two examples shown above.
+
+(Hint: Run `python3 mermaid.py -d WoRlLeDh` to dump all intermediate values of the SAG core in a compact and easy-to-inspect format.)
 
 ```mermaid
 %% di=[s t C A a T o g] ci=[0 0 1 1 0 1 0 0]

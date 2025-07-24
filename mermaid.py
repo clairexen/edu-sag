@@ -73,12 +73,21 @@ args = sys.argv[1:]
 
 summary_mode = False
 verbose_mode = False
+dump_mode = False
+exec_str = None
 
-if args and args[0] in ("-s", "-v"):
+while args and args[0] in tuple("-s -v -d -e".split()):
     if args[0] == "-s":
         summary_mode = True
-    if args[0] == "-v":
+    elif args[0] == "-v":
         verbose_mode = True
+    elif args[0] == "-d":
+        dump_mode = True
+    elif args[0] == "-e":
+        exec_str = args[1]
+        args = args[1:]
+    else:
+        assert False
     args = args[1:]
 
 if not args:
@@ -102,6 +111,22 @@ for arg in args:
         if n & 1: tag(7)
         if n & 2: tag(11)
         return s
+
+    if exec_str or dump_mode:
+        print(f"# {''.join([str(x) for x in reversed(d.di)])}")
+
+        # Agents: Use `-e python_code` to execute arbitrary code (with ++ => \n for
+        # convenience) for inspecting the state of the sag object
+        if exec_str:
+            exec(exec_str.replace("++", "\n"))
+
+        # Agents: Use `-d [subject strings(s)]` to simply dump the entire state of
+        # the sag object in an easy-to-parse format
+        if dump_mode:
+            for k,v in d.__dict__.items():
+                print(f"{k}: {' '.join([str(x) for x in reversed(v)])}")
+
+        continue
 
     print("```mermaid")
     print(f"%% di=[{st(jru(d.di), 0)}] ci=[{st(jru(['1' if x else '0' for x in d.ci]), 0)}]")
