@@ -54,22 +54,26 @@ module pext_decoder (
 	input [7:0] mask,
 	output [3:0] s1, s2, s4
 );
-	wire [63:0] ppsdata;
-
-	pext_pfsum pfsum (mask, ppsdata);
+	wire [2:0] sum0 = mask[0];
+	wire [2:0] sum1 = sum0 + mask[1];
+	wire [2:0] sum2 = sum1 + mask[2];
+	wire [2:0] sum3 = sum2 + mask[3];
+	wire [2:0] sum4 = sum3 + mask[4];
+	wire [2:0] sum5 = sum4 + mask[5];
+	wire [2:0] sum6 = sum5 + mask[6];
 
 	// decoder stage 1
-	pext_lrotcz #(.N(1), .M(1)) lrotcz_0_0 (ppsdata[8*0 +: 8], s1[0]);
-	pext_lrotcz #(.N(1), .M(1)) lrotcz_0_1 (ppsdata[8*2 +: 8], s1[1]);
-	pext_lrotcz #(.N(1), .M(1)) lrotcz_0_2 (ppsdata[8*4 +: 8], s1[2]);
-	pext_lrotcz #(.N(1), .M(1)) lrotcz_0_3 (ppsdata[8*6 +: 8], s1[3]);
+	pext_lrotcz #(.N(1), .M(1)) lrotcz_0_0 (sum0, s1[0]);
+	pext_lrotcz #(.N(1), .M(1)) lrotcz_0_1 (sum2, s1[1]);
+	pext_lrotcz #(.N(1), .M(1)) lrotcz_0_2 (sum4, s1[2]);
+	pext_lrotcz #(.N(1), .M(1)) lrotcz_0_3 (sum6, s1[3]);
 
 	// decoder stage 2
-	pext_lrotcz #(.N(2), .M(2)) lrotcz_1_0 (ppsdata[8*1 +: 8], s2[2*0 +: 2]);
-	pext_lrotcz #(.N(2), .M(2)) lrotcz_1_1 (ppsdata[8*5 +: 8], s2[2*1 +: 2]);
+	pext_lrotcz #(.N(2), .M(2)) lrotcz_1_0 (sum1, s2[2*0 +: 2]);
+	pext_lrotcz #(.N(2), .M(2)) lrotcz_1_1 (sum5, s2[2*1 +: 2]);
 
 	// decoder stage 3
-	pext_lrotcz #(.N(3), .M(4)) lrotcz_2_0 (ppsdata[8*3 +: 8], s4[4*0 +: 4]);
+	pext_lrotcz #(.N(3), .M(4)) lrotcz_2_0 (sum3, s4[4*0 +: 4]);
 endmodule
 
 module pext_lrotcz #(
@@ -81,15 +85,4 @@ module pext_lrotcz #(
 );
 	wire [2*M-1:0] mask = {M{1'b1}};
 	assign do = (mask << di[N-1:0]) >> M;
-endmodule
-
-module pext_pfsum (input [7:0] di, output [63:0] do);
-	assign do[0 +: 8] = {15'b0, di[0 +: 1]};
-	assign do[8 +: 8] = {15'b0, di[1 +: 1]} + do[0 +: 8];
-	assign do[16 +: 8] = {15'b0, di[2 +: 1]} + do[8 +: 8];
-	assign do[24 +: 8] = {15'b0, di[3 +: 1]} + do[16 +: 8];
-	assign do[32 +: 8] = {15'b0, di[4 +: 1]} + do[24 +: 8];
-	assign do[40 +: 8] = {15'b0, di[5 +: 1]} + do[32 +: 8];
-	assign do[48 +: 8] = {15'b0, di[6 +: 1]} + do[40 +: 8];
-	assign do[56 +: 8] = {15'b0, di[7 +: 1]} + do[48 +: 8];
 endmodule
