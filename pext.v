@@ -20,169 +20,76 @@
 // ========================================================================
 
 module pext (input [7:0] di, ci, output [7:0] do);
-	wire din_mode = 0;
-	wire [3:0] decoder_s1, decoder_s2, decoder_s4;
-	wire [3:0] decoder_s8, decoder_s16, decoder_s32;
-	wire [7:0] decoder_sum;
+	wire [3:0] s1, s2, s4;
 
-	pext_decoder decoder (
-		.mask  (ci   ),
-		.s1    (decoder_s1 ),
-		.s2    (decoder_s2 ),
-		.s4    (decoder_s4 ),
-		.s8    (decoder_s8 ),
-		.s16   (decoder_s16),
-		.s32   (decoder_s32),
-		.sum   (decoder_sum)
-	);
-
-	wire [7:0] result_fwd;
-	wire [7:0] result_bwd;
-
-	pext_butterfly_fwd butterfly_fwd (
-		.din  (di   ),
-		.s1   (~decoder_s1 ),
-		.s2   (~decoder_s2 ),
-		.s4   (~decoder_s4 ),
-		.s8   (~decoder_s8 ),
-		.s16  (~decoder_s16),
-		.s32  (~decoder_s32),
-		.dout (result_fwd  )
-	);
-
-	pext_butterfly_bwd butterfly_bwd (
-		.din  (di & ci),
-		.s1   (~decoder_s1 ),
-		.s2   (~decoder_s2 ),
-		.s4   (~decoder_s4 ),
-		.s8   (~decoder_s8 ),
-		.s16  (~decoder_s16),
-		.s32  (~decoder_s32),
-		.dout (result_bwd  )
-	);
-
-	assign do = din_mode ? (result_fwd & ci) : result_bwd;
+	pext_decoder decoder (ci, s1, s2, s4);
+	pext_ibfly ibfly (di&ci, s1, s2, s4, do);
 endmodule
 
 // ========================================================================
+
+module pext_ibfly (input [7:0] di, input [3:0] s1, s2, s4, output [7:0] do);
+	wire [7:0] d1, d2;
+
+	// bfly stage 1
+	assign {d1[1], d1[0]} = s1[0] ? {di[1], di[0]} : {di[0], di[1]};
+	assign {d1[3], d1[2]} = s1[1] ? {di[3], di[2]} : {di[2], di[3]};
+	assign {d1[5], d1[4]} = s1[2] ? {di[5], di[4]} : {di[4], di[5]};
+	assign {d1[7], d1[6]} = s1[3] ? {di[7], di[6]} : {di[6], di[7]};
+
+	// bfly stage 2
+	assign {d2[2], d2[0]} = s2[0] ? {d1[2], d1[0]} : {d1[0], d1[2]};
+	assign {d2[3], d2[1]} = s2[1] ? {d1[3], d1[1]} : {d1[1], d1[3]};
+	assign {d2[6], d2[4]} = s2[2] ? {d1[6], d1[4]} : {d1[4], d1[6]};
+	assign {d2[7], d2[5]} = s2[3] ? {d1[7], d1[5]} : {d1[5], d1[7]};
+
+	// bfly stage 3
+	assign {do[4], do[0]} = s4[0] ? {d2[4], d2[0]} : {d2[0], d2[4]};
+	assign {do[5], do[1]} = s4[1] ? {d2[5], d2[1]} : {d2[1], d2[5]};
+	assign {do[6], do[2]} = s4[2] ? {d2[6], d2[2]} : {d2[2], d2[6]};
+	assign {do[7], do[3]} = s4[3] ? {d2[7], d2[3]} : {d2[3], d2[7]};
+endmodule
+
+module pext_decoder (
+	input [7:0] mask,
+	output [3:0] s1, s2, s4
+);
+	wire [63:0] ppsdata;
+
+	pext_pfsum pfsum (mask, ppsdata);
+
+	// decoder stage 1
+	pext_lrotcz #(.N(1), .M(1)) lrotcz_0_0 (ppsdata[8*0 +: 8], s1[0]);
+	pext_lrotcz #(.N(1), .M(1)) lrotcz_0_1 (ppsdata[8*2 +: 8], s1[1]);
+	pext_lrotcz #(.N(1), .M(1)) lrotcz_0_2 (ppsdata[8*4 +: 8], s1[2]);
+	pext_lrotcz #(.N(1), .M(1)) lrotcz_0_3 (ppsdata[8*6 +: 8], s1[3]);
+
+	// decoder stage 2
+	pext_lrotcz #(.N(2), .M(2)) lrotcz_1_0 (ppsdata[8*1 +: 8], s2[2*0 +: 2]);
+	pext_lrotcz #(.N(2), .M(2)) lrotcz_1_1 (ppsdata[8*5 +: 8], s2[2*1 +: 2]);
+
+	// decoder stage 3
+	pext_lrotcz #(.N(3), .M(4)) lrotcz_2_0 (ppsdata[8*3 +: 8], s4[4*0 +: 4]);
+endmodule
 
 module pext_lrotcz #(
 	parameter integer N = 1,
 	parameter integer M = 1
 ) (
-	input [7:0] din,
-	output [M-1:0] dout
+	input [7:0] di,
+	output [M-1:0] do
 );
 	wire [2*M-1:0] mask = {M{1'b1}};
-	assign dout = (mask << din[N-1:0]) >> M;
+	assign do = (mask << di[N-1:0]) >> M;
 endmodule
 
-module pext_decoder (
-	input clock,
-	input enable,
-	input [7:0] mask,
-	output [3:0] s1, s2, s4, s8, s16, s32,
-	output [7:0] sum
-);
-	wire [63:0] ppsdata;
-
-	assign sum = ppsdata[8*7 +: 8];
-
-	pext_pps8 pps_core (
-		.din  (mask),
-		.dout (ppsdata)
-	);
-
-	genvar i;
-	generate
-		for (i = 0; i < 8/2; i = i+1) begin:stage1
-			pext_lrotcz #(.N(1), .M(1)) lrotc_zero (
-				.din(ppsdata[8*(2*i + 1 - 1) +: 8]),
-				.dout(s1[i])
-			);
-		end
-
-		for (i = 0; i < 8/4; i = i+1) begin:stage2
-			pext_lrotcz #(.N(2), .M(2)) lrotc_zero (
-				.din(ppsdata[8*(4*i + 2 - 1) +: 8]),
-				.dout(s2[2*i +: 2])
-			);
-		end
-
-		for (i = 0; i < 8/8; i = i+1) begin:stage4
-			pext_lrotcz #(.N(3), .M(4)) lrotc_zero (
-				.din(ppsdata[8*(8*i + 4 - 1) +: 8]),
-				.dout(s4[4*i +: 4])
-			);
-		end
-	endgenerate
-endmodule
-
-`define pext_butterfly_idx_a(k, i) ((2 << (k))*((i)/(1 << (k))) + (i)%(1 << (k)))
-`define pext_butterfly_idx_b(k, i) (`pext_butterfly_idx_a(k, i) + (1<<(k)))
-
-module pext_butterfly_fwd (
-	input [7:0] din,
-	input [3:0] s1, s2, s4, s8, s16, s32,
-	output [7:0] dout
-);
-	reg [7:0] butterfly;
-	assign dout = butterfly;
-
-	integer k, i;
-	always @* begin
-		butterfly = din;
-
-		for (i = 0; i < 4; i = i+1)
-			if (s4[i]) {butterfly[`pext_butterfly_idx_a(2, i)], butterfly[`pext_butterfly_idx_b(2, i)]} =
-						{butterfly[`pext_butterfly_idx_b(2, i)], butterfly[`pext_butterfly_idx_a(2, i)]};
-
-		for (i = 0; i < 4; i = i+1)
-			if (s2[i]) {butterfly[`pext_butterfly_idx_a(1, i)], butterfly[`pext_butterfly_idx_b(1, i)]} =
-						{butterfly[`pext_butterfly_idx_b(1, i)], butterfly[`pext_butterfly_idx_a(1, i)]};
-
-		for (i = 0; i < 4; i = i+1)
-			if (s1[i]) {butterfly[`pext_butterfly_idx_a(0, i)], butterfly[`pext_butterfly_idx_b(0, i)]} =
-						{butterfly[`pext_butterfly_idx_b(0, i)], butterfly[`pext_butterfly_idx_a(0, i)]};
-	end
-endmodule
-
-module pext_butterfly_bwd (
-	input [7:0] din,
-	input [3:0] s1, s2, s4, s8, s16, s32,
-	output [7:0] dout
-);
-	reg [7:0] butterfly;
-	assign dout = butterfly;
-
-	integer k, i;
-	always @* begin
-		butterfly = din;
-
-		for (i = 0; i < 4; i = i+1)
-			if (s1[i]) {butterfly[`pext_butterfly_idx_a(0, i)], butterfly[`pext_butterfly_idx_b(0, i)]} =
-						{butterfly[`pext_butterfly_idx_b(0, i)], butterfly[`pext_butterfly_idx_a(0, i)]};
-
-		for (i = 0; i < 4; i = i+1)
-			if (s2[i]) {butterfly[`pext_butterfly_idx_a(1, i)], butterfly[`pext_butterfly_idx_b(1, i)]} =
-						{butterfly[`pext_butterfly_idx_b(1, i)], butterfly[`pext_butterfly_idx_a(1, i)]};
-
-		for (i = 0; i < 4; i = i+1)
-			if (s4[i]) {butterfly[`pext_butterfly_idx_a(2, i)], butterfly[`pext_butterfly_idx_b(2, i)]} =
-						{butterfly[`pext_butterfly_idx_b(2, i)], butterfly[`pext_butterfly_idx_a(2, i)]};
-	end
-endmodule
-
-module pext_pps8 (
-  input [7:0] din,
-  output [63:0] dout
-);
-  assign dout[0 +: 8] = {15'b0, din[0 +: 1]};
-  assign dout[8 +: 8] = {15'b0, din[1 +: 1]} + dout[0 +: 8];
-  assign dout[16 +: 8] = {15'b0, din[2 +: 1]} + dout[8 +: 8];
-  assign dout[24 +: 8] = {15'b0, din[3 +: 1]} + dout[16 +: 8];
-  assign dout[32 +: 8] = {15'b0, din[4 +: 1]} + dout[24 +: 8];
-  assign dout[40 +: 8] = {15'b0, din[5 +: 1]} + dout[32 +: 8];
-  assign dout[48 +: 8] = {15'b0, din[6 +: 1]} + dout[40 +: 8];
-  assign dout[56 +: 8] = {15'b0, din[7 +: 1]} + dout[48 +: 8];
+module pext_pfsum (input [7:0] di, output [63:0] do);
+	assign do[0 +: 8] = {15'b0, di[0 +: 1]};
+	assign do[8 +: 8] = {15'b0, di[1 +: 1]} + do[0 +: 8];
+	assign do[16 +: 8] = {15'b0, di[2 +: 1]} + do[8 +: 8];
+	assign do[24 +: 8] = {15'b0, di[3 +: 1]} + do[16 +: 8];
+	assign do[32 +: 8] = {15'b0, di[4 +: 1]} + do[24 +: 8];
+	assign do[40 +: 8] = {15'b0, di[5 +: 1]} + do[32 +: 8];
+	assign do[48 +: 8] = {15'b0, di[6 +: 1]} + do[40 +: 8];
+	assign do[56 +: 8] = {15'b0, di[7 +: 1]} + do[48 +: 8];
 endmodule
