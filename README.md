@@ -156,7 +156,7 @@ This is because no matter if the MSB bit is a sheep or goat, it's always going t
 
 Because of this, because we can make it so that there's always an even number of sheep and goats, we get the following usefull property:
 
-**Going through the control word from right to left, i.e. from LSB to MSB bits, and deciding for each pair of bits if it should be swapped based only of the fact if we have ecountered an even or odd number of set bits so far, is EQUIVALENT IN THE OVERLAPPING CASES to going from left to right and counting the zero bits.**
+**Going through the control word from right to left, i.e. from LSB to MSB bits, and deciding for each pair of bits if it should be swapped based only of the fact if we have encountered an even or odd number of set bits so far, is EQUIVALENT IN THE OVERLAPPING CASES to going from left to right and counting the zero bits.**
 
 With *EQUIVALENT IN THE OVERLAPPING CASES* we refer to the fact that the "right-to-left" approach produces no constraints on a pair of zero bits, and the "left-to-right" approach produces no constraints on a pair of one bits.
 
@@ -178,7 +178,7 @@ Thus the method performs the following steps
 
 In the first iteration we put each data (and control) bit in the correct (even/odd) half of the word.
 
-The unshuffle operations switches the roles of the bit-index-bits. I.e. for 8-bit words the unshuffle operation corresponds to a one-bit rotate right shift of the 3-bit bit-indices.) Note that an unshuffle opration does not require any active hardware elements, it's just crossing wires.
+The unshuffle operations switches the roles of the bit-index-bits. I.e. for 8-bit words the unshuffle operation corresponds to a one-bit rotate right shift of the 3-bit bit-indices.) Note that an unshuffle operation does not require any active hardware elements, it's just crossing wires.
 
 After the unshuffle we treat the even and odd halfs as completely seperate (upper and lower) N/2 half-words, and then effectively call the algorithm recursively on the two halfs, quartes, etc, until we have passed each bit-address-bit throught the zero position and have re-created the original bit-address-bit-ordering after log2(N) right-shifts of the log2(N) bit-address-bits.
 
