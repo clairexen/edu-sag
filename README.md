@@ -178,7 +178,7 @@ Thus the method performs the following steps
 
 In the first iteration we put each data (and control) bit in the correct (even/odd) half of the word.
 
-The unshuffle operations switches the roles of the bit-index-bits. I.e. for 8-bit words the unshuffle operation corresponds to a one-bit rotate right shift of the 3-bit bit-indices.) Note that an unshuffle opration does not require any active hardware elements, it's just crossing wires.
+The unshuffle operations switches the roles of the bit-index-bits. I.e. for 8-bit words the unshuffle operation corresponds to a one-bit rotate right shift of the 3-bit bit-indices.) Note that an unshuffle operation does not require any active hardware elements, it's just crossing wires.
 
 After the unshuffle we treat the even and odd halfs as completely seperate (upper and lower) N/2 half-words, and then effectively call the algorithm recursively on the two halfs, quartes, etc, until we have passed each bit-address-bit throught the zero position and have re-created the original bit-address-bit-ordering after log2(N) right-shifts of the log2(N) bit-address-bits.
 
