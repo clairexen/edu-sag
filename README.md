@@ -156,7 +156,7 @@ This is because no matter if the MSB bit is a sheep or goat, it's always going t
 
 Because of this, because we can make it so that there's always an even number of sheep and goats, we get the following usefull property:
 
-**Going through the control word from right to left, i.e. from LSB to MSB bits, and deciding for each pair of bits if it should be swapped based only of the fact if we have ecountered an even or odd number of set bits so far, is EQUIVALENT IN THE OVERLAPPING CASES to going from left to right and counting the zero bits.**
+**Going through the control word from right to left, i.e. from LSB to MSB bits, and deciding for each pair of bits if it should be swapped based only of the fact if we have encountered an even or odd number of set bits so far, is EQUIVALENT IN THE OVERLAPPING CASES to going from left to right and counting the zero bits.**
 
 With *EQUIVALENT IN THE OVERLAPPING CASES* we refer to the fact that the "right-to-left" approach produces no constraints on a pair of zero bits, and the "left-to-right" approach produces no constraints on a pair of one bits.
 
